@@ -8,6 +8,8 @@ git reset --hard HEAD
 if [ -n "${COMMIT}" ]; then
     git checkout "${COMMIT}" && git reset --hard HEAD || \
     (printf 'Could not check out specified commit or tag: %s\n' "${COMMIT}"; exit 5)
+else
+    git checkout master && git reset --hard HEAD
 fi
 
 ./configure \
