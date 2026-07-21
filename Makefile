@@ -33,6 +33,7 @@ build:
 		-e UID=$$(id -u) \
 		-e GID=$$(id -g) \
 		-e COMMIT=$(COMMIT) \
+		-e LABEL=$(LABEL) \
 		-e SUFFIX=$(SUFFIX) \
 		-v "$$(pwd)/output:/output" \
 		-v "$$(pwd)/res/vol:/res:ro" \
@@ -51,6 +52,7 @@ test:
 		-e UID=$$(id -u) \
 		-e GID=$$(id -g) \
 		-e COMMIT=$(COMMIT) \
+		-e LABEL=$(LABEL) \
 		-e SUFFIX=$(SUFFIX) \
 		-v "$$(pwd)/output:/output" \
 		-v "$$(pwd)/res/vol:/res:ro" \

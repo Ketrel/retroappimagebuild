@@ -11,7 +11,9 @@ QMAKE=/usr/bin/qmake6 linuxdeploy \
     --output appimage
 
 if [ -n "${COMMIT}" ]; then
-    mv -n *.AppImage RetroArch-${COMMIT}${SUFFIX:+"-${SUFFIX}"}.AppImage
+    mv -n *.AppImage RetroArch${LABEL:+"-${LABEL}"}${COMMIT:+"-${COMMIT}"}${SUFFIX:+"-${SUFFIX}"}.AppImage
+elif [ -n "${LABEL}" ]; then
+    mv -n *.AppImage RetroArch${LABEL:+"-${LABEL}"}${SUFFIX:+"-${SUFFIX}"}.AppImage
 else
     mv -n *.AppImage RetroArch-$(date +"%Y%m%d-%H%M%S")${SUFFIX:+"-${SUFFIX}"}.AppImage
 fi
