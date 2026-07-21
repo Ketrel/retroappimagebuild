@@ -1,6 +1,8 @@
 #!/bin/sh
 
-#06 assemble appimage
+DEBIAN_FRONTEND=noninteractive
+apt update
+apt install -y qt5base-dev qt6base-dev
 cd /staging/retro
 sed -i 's/^Version=1.5/Version=1.4/ ; s/^SingleMainWindow/X-SingleMainWindow/' AppDir/usr/share/applications/com.libretro.RetroArch.desktop
 linuxdeploy \

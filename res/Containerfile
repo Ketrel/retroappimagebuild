@@ -29,6 +29,7 @@ RUN <<EOF
     cd /git
     git clone https://github.com/linuxdeploy/linuxdeploy.git
     git clone https://github.com/linuxdeploy/linuxdeploy-plugin-appimage.git
+    git clone https://github.com/linuxdeploy/linuxdeploy-plugin-qt.git
 
     cd /git/linuxdeploy
     git submodule update --init --recursive
@@ -37,6 +38,12 @@ RUN <<EOF
     DESTDIR=/staging cmake --install _build
 
     cd /git/linuxdeploy-plugin-appimage
+    git submodule update --init --recursive
+    cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
+    cmake --build _build -j$(nproc)
+    DESTDIR=/staging cmake --install _build
+
+    cd /git/linuxdeploy-plugin-qt
     git submodule update --init --recursive
     cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
     cmake --build _build -j$(nproc)
