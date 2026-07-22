@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := all
-.PHONY: image clone build clean test
+.PHONY: all image clone build clean test
 
 all: image clone build
 
@@ -7,10 +7,10 @@ all: image clone build
 UID := $(shell id -u)
 GID := $(shell id -g)
 
-BUILDROOT	:= "$(CURDIR)"
-GITDIR		:= "$(BUILDROOT)/res/git"
-RESOURCEDIR := "$(BUILDROOT)/res/vol"
-OUTPUTDIR	:= "$(BUILDROOT)/output"
+BUILDROOT	:= $(CURDIR)
+GITDIR		:= $(BUILDROOT)/res/git
+RESOURCEDIR := $(BUILDROOT)/res/vol
+OUTPUTDIR	:= $(BUILDROOT)/output
 
 IMAGE := retrobuild:appimagebuildenv
 PODMAN_RUN = podman run \
