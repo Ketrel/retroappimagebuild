@@ -1,62 +1,59 @@
+.DEFAULT_GOAL := all
 .PHONY: image clone build clean test
+
 all: image clone build
 
+
+UID := $(shell id -u)
+GID := $(shell id -g)
+
+BUILDROOT	:= "$(CURDIR)"
+GITDIR		:= "$(BUILDROOT)/res/git"
+RESOURCEDIR := "$(BUILDROOT)/res/vol"
+OUTPUTDIR	:= "$(BUILDROOT)/output"
+
+IMAGE := retrobuild:appimagebuildenv
+PODMAN_RUN = podman run \
+	--log-driver=none \
+	--rm \
+	-i \
+	-t \
+	-e UID=$(UID) \
+	-e GID=$(GID) \
+	-e COMMIT=$(COMMIT) \
+	-e LABEL=$(LABEL) \
+	-e SUFFIX=$(SUFFIX) \
+	-v "$(BUILDROOT)/res/vol:/res:ro" \
+	-v "$(BUILDROOT)/res/git:/git" \
+	-v "$(BUILDROOT)/output:/output" \
+	-v "/etc/localtime:/etc/localtime:ro" 
+
 image: 
-	@echo "Assembling the needed image as retrobuild:appimagebuildenv"
-	podman build \
-	-t retrobuild:appimagebuildenv \
-	-f ./res/Containerfile
+	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then \
+		echo "Assembling the needed image as $(IMAGE)"; \
+		podman build \
+			-t retrobuild:appimagebuildenv \
+			-f ./res/Containerfile; \
+	else \
+		echo "Image \"$(IMAGE)\" already exists.  Not creating."; \
+	fi
 
 clone:
-	@test ! -d "$$(pwd)/res/git/RetroArch" || { \
-		echo "RetroArch git repo already exists"; \
-		exit 1; \
-	}
-	@podman run \
-		--log-driver=json-file \
-		-e UID=$$(id -u) \
-		-e GID=$$(id -g) \
-		-v "$$(pwd)/res/vol:/res:ro" \
-		-v "$$(pwd)/res/git:/git" \
-		--rm \
-		-it retrobuild:appimagebuildenv \
-		sh -c 'cd /git && if [ ! -d "RetroArch" ]; then git clone https://github.com/libretro/RetroArch.git; fi'
+	@if test -d "$(GITDIR)/RetroArch"; then \
+		echo "RetroArch git repo already exists. Not cloning."; \
+	else \
+		$(PODMAN_RUN) -t "$(IMAGE)" \
+		sh -c 'cd /git; git clone https://github.com/libretro/RetroArch.git'; \
+	fi
 
-build:
-	@test -d "$$(pwd)/res/git/RetroArch" || { \
-		echo "RetroArch git directory missing, please run 'make clone'."; \
-		exit 1; \
-	}
-	@echo "would build"
-	@podman run \
-		--log-driver=json-file \
-		-e UID=$$(id -u) \
-		-e GID=$$(id -g) \
-		-e COMMIT=$(COMMIT) \
-		-e LABEL=$(LABEL) \
-		-e SUFFIX=$(SUFFIX) \
-		-v "$$(pwd)/output:/output" \
-		-v "$$(pwd)/res/vol:/res:ro" \
-		-v "$$(pwd)/res/git:/git" \
-		-v "/etc/localtime:/etc/localtime:ro" \
-		--rm \
-		-it retrobuild:appimagebuildenv \
-		/res/scripts/build.sh
+build: image clone
+	@echo "Running build"
+	$(PODMAN_RUN) "$(IMAGE)" \
+	/res/scripts/build.sh
 
 clean:
 	@rm -rf "$$(pwd)/res/git/RetroArch"
 
 test:
-	podman run \
-		--log-driver=json-file \
-		-e UID=$$(id -u) \
-		-e GID=$$(id -g) \
-		-e COMMIT=$(COMMIT) \
-		-e LABEL=$(LABEL) \
-		-e SUFFIX=$(SUFFIX) \
-		-v "$$(pwd)/output:/output" \
-		-v "$$(pwd)/res/vol:/res:ro" \
-		-v "$$(pwd)/res/git:/git" \
-		--rm \
-		-it retrobuild:appimagebuildenv \
-		sh
+	$(PODMAN_RUN) -t $(IMAGE) \
+		bash
