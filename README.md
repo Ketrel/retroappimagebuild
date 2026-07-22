@@ -23,7 +23,7 @@ Available parameters (envars):
 * LABEL: Replaces the auto-generated date/time  
 * SUFFIX: Suffix applied to output name  
 
-`make build COMMIT="a1b2c3d4" LABEL="dev" SUFFIX="2"` will produce: RetroArch-dev-a1b3c3d4-2.AppImage
+`make build COMMIT="a1b2c3d4" LABEL="dev" SUFFIX="2"` will produce: RetroArch-dev-a1b2c3d4-2.AppImage
 
 AppImages will appear in the `output` directory.
 
