@@ -1,8 +1,5 @@
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := build
 .PHONY: all image clone build clean test
-
-all: image clone build
-
 
 UID := $(shell id -u)
 GID := $(shell id -g)
@@ -12,8 +9,8 @@ GITDIR		:= $(BUILDROOT)/res/git
 RESOURCEDIR := $(BUILDROOT)/res/vol
 OUTPUTDIR	:= $(BUILDROOT)/output
 
-IMAGE := retrobuild:appimagebuildenv
-PODMAN_RUN = podman run \
+IMAGE       := retrobuild:appimagebuildenv
+PODMAN_RUN  := podman run \
 	--log-driver=none \
 	--rm \
 	-i \
@@ -28,11 +25,13 @@ PODMAN_RUN = podman run \
 	-v "$(BUILDROOT)/output:/output" \
 	-v "/etc/localtime:/etc/localtime:ro" 
 
+all: build
+
 image: 
 	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then \
 		echo "Assembling the needed image as $(IMAGE)"; \
 		podman build \
-			-t retrobuild:appimagebuildenv \
+			-t "$(IMAGE)" \
 			-f ./res/Containerfile; \
 	else \
 		echo "Image \"$(IMAGE)\" already exists.  Not creating."; \
@@ -52,7 +51,7 @@ build: image clone
 	/res/scripts/build.sh
 
 clean:
-	@rm -rf "$$(pwd)/res/git/RetroArch"
+	@rm -rf "$(GITDIR)/RetroArch"
 
 test:
 	$(PODMAN_RUN) -t $(IMAGE) \
