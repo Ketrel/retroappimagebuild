@@ -1,13 +1,17 @@
 .DEFAULT_GOAL := build
 .PHONY: all image clone build clean test-image
 
-UID := $(shell id -u)
-GID := $(shell id -g)
+.ONESHELL:
+.SHELLFLAGS	:= -ec
+
+UID			:= $(shell id -u)
+GID			:= $(shell id -g)
 
 BUILDROOT	:= $(CURDIR)
 GITDIR		:= $(BUILDROOT)/res/git
 RESOURCEDIR	:= $(BUILDROOT)/res/vol
 
+#User can specify different output dir
 OUTPUTDIR	?= $(BUILDROOT)/output
 
 IMAGE       := retrobuild:appimagebuildenv
@@ -23,8 +27,6 @@ PODMAN_RUN  := podman run \
 	-v "$(GITDIR):/git" \
 	-v "$(OUTPUTDIR):/output" \
 	-v "/etc/localtime:/etc/localtime:ro"
-
-.ONESHELL:
 
 all: build
 
@@ -42,19 +44,19 @@ clone: image
 	@if test -d "$(GITDIR)/RetroArch/.git"; then
 		echo "RetroArch git repo already exists. Not cloning."
 	else
-		$(PODMAN_RUN) -it "$(IMAGE)"
+		$(PODMAN_RUN) -it "$(IMAGE)" \
 		git -C /git clone https://github.com/libretro/RetroArch.git
 	fi
 
 build: image clone
 	@echo "Running build"
-	@$(PODMAN_RUN) -it "$(IMAGE)"
-	/res/scripts/build.sh
+	@$(PODMAN_RUN) -it "$(IMAGE)" \
+		/res/scripts/build.sh
 
 clean:
 	#Cleaning does not remove from the output directory
 	@rm -rf "$(GITDIR)/RetroArch"
 
 test-image: image
-	$(PODMAN_RUN) -it "$(IMAGE)"
+	$(PODMAN_RUN) -it "$(IMAGE)" \
 		bash
