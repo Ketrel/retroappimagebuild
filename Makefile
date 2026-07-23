@@ -36,21 +36,21 @@ image:
 	fi
 
 clone:
-	@if test -d "$(GITDIR)/RetroArch"; then \
+	@if test -d "$(GITDIR)/RetroArch/.git"; then \
 		echo "RetroArch git repo already exists. Not cloning."; \
 	else \
 		$(PODMAN_RUN) -it "$(IMAGE)" \
-		sh -c 'cd /git; git clone https://github.com/libretro/RetroArch.git'; \
+		git -C /git clone https://github.com/libretro/RetroArch.git; \
 	fi
 
 build: image clone
 	@echo "Running build"
-	$(PODMAN_RUN) -it "$(IMAGE)" \
+	@$(PODMAN_RUN) -it "$(IMAGE)" \
 	/res/scripts/build.sh
 
 clean:
 	@rm -rf "$(GITDIR)/RetroArch"
 
 test:
-	$(PODMAN_RUN) -it $(IMAGE) \
+	$(PODMAN_RUN) -it "$(IMAGE)" \
 		bash
