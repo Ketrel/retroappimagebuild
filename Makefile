@@ -22,31 +22,33 @@ PODMAN_RUN  := podman run \
 	-v "$(RESOURCEDIR):/res:ro" \
 	-v "$(GITDIR):/git" \
 	-v "$(OUTPUTDIR):/output" \
-	-v "/etc/localtime:/etc/localtime:ro" 
+	-v "/etc/localtime:/etc/localtime:ro"
+
+.ONESHELL:
 
 all: build
 
-image: 
-	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then \
-		echo "Assembling the needed image as $(IMAGE)"; \
-		podman build \
-			-t "$(IMAGE)" \
-			-f ./res/Containerfile; \
-	else \
-		echo "Image \"$(IMAGE)\" already exists.  Not creating."; \
+image:
+	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then
+		echo "Assembling the needed image as $(IMAGE)"
+		podman build
+			-t "$(IMAGE)"
+			-f ./res/Containerfile
+	else
+		echo "Image \"$(IMAGE)\" already exists.  Not creating."
 	fi
 
 clone: image
-	@if test -d "$(GITDIR)/RetroArch/.git"; then \
-		echo "RetroArch git repo already exists. Not cloning."; \
-	else \
-		$(PODMAN_RUN) -it "$(IMAGE)" \
-		git -C /git clone https://github.com/libretro/RetroArch.git; \
+	@if test -d "$(GITDIR)/RetroArch/.git"; then
+		echo "RetroArch git repo already exists. Not cloning."
+	else
+		$(PODMAN_RUN) -it "$(IMAGE)"
+		git -C /git clone https://github.com/libretro/RetroArch.git
 	fi
 
 build: image clone
 	@echo "Running build"
-	@$(PODMAN_RUN) -it "$(IMAGE)" \
+	@$(PODMAN_RUN) -it "$(IMAGE)"
 	/res/scripts/build.sh
 
 clean:
@@ -54,5 +56,5 @@ clean:
 	@rm -rf "$(GITDIR)/RetroArch"
 
 test-image: image
-	$(PODMAN_RUN) -it "$(IMAGE)" \
+	$(PODMAN_RUN) -it "$(IMAGE)"
 		bash
