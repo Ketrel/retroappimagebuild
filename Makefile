@@ -6,7 +6,7 @@ GID := $(shell id -g)
 
 BUILDROOT	:= $(CURDIR)
 GITDIR		:= $(BUILDROOT)/res/git
-RESOURCEDIR := $(BUILDROOT)/res/vol
+RESOURCEDIR	:= $(BUILDROOT)/res/vol
 OUTPUTDIR	:= $(BUILDROOT)/output
 
 IMAGE       := retrobuild:appimagebuildenv
