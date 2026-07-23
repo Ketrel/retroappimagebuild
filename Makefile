@@ -4,8 +4,9 @@
 .ONESHELL:
 .SHELLFLAGS		:= -ec
 
-UID				:= $(shell id -u)
-GID				:= $(shell id -g)
+# Unless specified will use the UID/GID of the user invoking Make
+UID				?= $(shell id -u)
+GID				?= $(shell id -g)
 
 BUILDROOT		:= $(CURDIR)
 GITDIR			:= $(BUILDROOT)/res/git
@@ -17,7 +18,7 @@ OUTPUTDIR		?= $(BUILDROOT)/output
 #I want an interactive tty attached in most cases, but for some steps, some using CI might want it off
 #I want it defaulted to be interactive, CI setup can disable it, but I do not want to add that step for users
 NOINTERACTIVE	?= 0
-TTY_FLAG		?= $(if $(filter 1,$(NOINTERACTIVE)),,-it)
+TTY_FLAG		:= $(if $(filter 1,$(NOINTERACTIVE)),,-it)
 
 IMAGE			:= retrobuild:appimagebuildenv
 
@@ -60,10 +61,11 @@ build: image clone
 	@$(PODMAN_RUN) $(TTY_FLAG) "$(IMAGE)" \
 		/res/scripts/build.sh
 
+#Does not remove build artifacts, only files used for the build itself
 clean:
-	@#Does not remove build artifacts, only files used for the build itself
-	rm -rf "$(GITDIR)/RetroArch"
+	@rm -rf "$(GITDIR)/RetroArch"
 
+#This is intended to spawn an interactive shell within the container, so -it is hard coded here
 test-image: image
 	$(PODMAN_RUN) -it "$(IMAGE)" \
 		bash
