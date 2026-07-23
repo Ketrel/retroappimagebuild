@@ -18,9 +18,9 @@ PODMAN_RUN  := podman run \
 	-e COMMIT=$(COMMIT) \
 	-e LABEL=$(LABEL) \
 	-e SUFFIX=$(SUFFIX) \
-	-v "$(BUILDROOT)/res/vol:/res:ro" \
-	-v "$(BUILDROOT)/res/git:/git" \
-	-v "$(BUILDROOT)/output:/output" \
+	-v "$(RESOURCEDIR):/res:ro" \
+	-v "$(GITDIR):/git" \
+	-v "$(OUTPUTDIR):/output" \
 	-v "/etc/localtime:/etc/localtime:ro" 
 
 all: build
