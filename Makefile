@@ -13,8 +13,6 @@ IMAGE       := retrobuild:appimagebuildenv
 PODMAN_RUN  := podman run \
 	--log-driver=none \
 	--rm \
-	-i \
-	-t \
 	-e UID=$(UID) \
 	-e GID=$(GID) \
 	-e COMMIT=$(COMMIT) \
@@ -41,18 +39,18 @@ clone:
 	@if test -d "$(GITDIR)/RetroArch"; then \
 		echo "RetroArch git repo already exists. Not cloning."; \
 	else \
-		$(PODMAN_RUN) -t "$(IMAGE)" \
+		$(PODMAN_RUN) -it "$(IMAGE)" \
 		sh -c 'cd /git; git clone https://github.com/libretro/RetroArch.git'; \
 	fi
 
 build: image clone
 	@echo "Running build"
-	$(PODMAN_RUN) "$(IMAGE)" \
+	$(PODMAN_RUN) -it "$(IMAGE)" \
 	/res/scripts/build.sh
 
 clean:
 	@rm -rf "$(GITDIR)/RetroArch"
 
 test:
-	$(PODMAN_RUN) -t $(IMAGE) \
+	$(PODMAN_RUN) -it $(IMAGE) \
 		bash
