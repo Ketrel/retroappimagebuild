@@ -1,9 +1,6 @@
 .DEFAULT_GOAL := build
 .PHONY: all image clone build clean test-image
 
-.ONESHELL:
-.SHELLFLAGS		:= -ec
-
 # Unless specified will use the UID/GID of the user invoking Make
 UID				?= $(shell id -u)
 GID				?= $(shell id -g)
@@ -39,26 +36,26 @@ PODMAN_RUN		:= podman run \
 all: build
 
 image:
-	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then
-		echo "Assembling the needed image as $(IMAGE)"
+	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then \
+		echo "Assembling the needed image as $(IMAGE)"; \
 		podman build \
 			-t "$(IMAGE)" \
-			-f ./res/Containerfile .
-	else
-		echo "Image \"$(IMAGE)\" already exists.  Not creating."
+			-f ./res/Containerfile .; \
+	else \
+		echo "Image \"$(IMAGE)\" already exists.  Not creating."; \
 	fi
 
 clone: image
-	@if test -d "$(GITDIR)/RetroArch/.git"; then
-		echo "RetroArch git repo already exists. Not cloning."
-	else
+	@if test -d "$(GITDIR)/RetroArch/.git"; then \
+		echo "RetroArch git repo already exists. Not cloning."; \
+	else \
 		$(PODMAN_RUN) $(TTY_FLAG) "$(IMAGE)" \
-			git clone https://github.com/libretro/RetroArch.git /git/RetroArch
+			git clone https://github.com/libretro/RetroArch.git /git/RetroArch; \
 	fi
 
 build: image clone
 	@echo "Running build"
-	@$(PODMAN_RUN) $(TTY_FLAG) "$(IMAGE)" \
+	$(PODMAN_RUN) $(TTY_FLAG) "$(IMAGE)" \
 		/res/scripts/build.sh
 
 # Does not remove build artifacts, only files used for the build itself
