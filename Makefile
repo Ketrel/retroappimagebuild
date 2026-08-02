@@ -19,8 +19,10 @@ TTY_FLAG		:= $(if $(filter 1,$(NOINTERACTIVE)),,-it)
 
 IMAGE			:= retrobuild:appimagebuildenv
 
+#
+ENGINE			?= podman
 # The build script handles cases for COMMIT/LABEL/SUFFIX to be unset and/or empty, so I pass them as is
-PODMAN_RUN		:= podman run \
+ENGINE_RUN		:= $(ENGINE) run \
 	--log-driver=none \
 	--rm \
 	-e UID=$(UID) \
@@ -33,12 +35,20 @@ PODMAN_RUN		:= podman run \
 	-v "$(OUTPUTDIR):/output" \
 	-v "/etc/localtime:/etc/localtime:ro"
 
+ifeq ($(ENGINE), podman)
+IMAGE_EXISTS	:= $(ENGINE) image exists "$(IMAGE)"
+else ifeq ($(ENGINE), docker)
+IMAGE_EXISTS	:= $(ENGINE) image inspect "$(IMAGE)" >/dev/null 2>&1
+else
+IMAGE_EXISTS	:= exit 1
+endif
+
 all: build
 
 image:
-	@if test "x$(FORCE)" = "x1" || ! podman image exists "$(IMAGE)"; then \
+	@if test "x$(FORCE)" = "x1" || ! $(IMAGE_EXISTS); then \
 		echo "Assembling the needed image as $(IMAGE)"; \
-		podman build \
+		$(ENGINE) build \
 			-t "$(IMAGE)" \
 			-f ./res/Containerfile .; \
 	else \
@@ -49,13 +59,13 @@ clone: image
 	@if test -d "$(GITDIR)/RetroArch/.git"; then \
 		echo "RetroArch git repo already exists. Not cloning."; \
 	else \
-		$(PODMAN_RUN) $(TTY_FLAG) "$(IMAGE)" \
+		$(ENGINE_RUN) $(TTY_FLAG) "$(IMAGE)" \
 			git clone https://github.com/libretro/RetroArch.git /git/RetroArch; \
 	fi
 
 build: image clone
 	@echo "Running build"
-	$(PODMAN_RUN) $(TTY_FLAG) "$(IMAGE)" \
+	$(ENGINE_RUN) $(TTY_FLAG) "$(IMAGE)" \
 		/res/scripts/build.sh
 
 # Does not remove build artifacts, only files used for the build itself
@@ -64,5 +74,5 @@ clean:
 
 # This is intended to spawn an interactive shell within the container, so -it is hard coded here
 test-image: image
-	$(PODMAN_RUN) -it "$(IMAGE)" \
+	$(ENGINE_RUN) -it "$(IMAGE)" \
 		bash
