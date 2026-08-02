@@ -23,7 +23,7 @@ RUN <<EOF
     DESTDIR=/staging cmake --install _build
 EOF
 
-FROM base as linuxdeploy-and-plug
+FROM base AS linuxdeploy-and-plug
 RUN <<EOF
     mkdir /git /staging
     cd /git
