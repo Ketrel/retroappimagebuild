@@ -40,7 +40,7 @@ IMAGE_EXISTS	:= $(ENGINE) image exists "$(IMAGE)"
 else ifeq ($(ENGINE), docker)
 IMAGE_EXISTS	:= $(ENGINE) image inspect "$(IMAGE)" >/dev/null 2>&1
 else
-IMAGE_EXISTS	:= exit 1
+$(error Unsupported ENGINE: $(ENGINE).  Valid options are 'podman' or 'docker'.)
 endif
 
 all: build
