@@ -1,9 +1,9 @@
-FROM debian:bookworm AS base
+FROM debian:bookworm@sha256:813017f3d62be4b5891a7acca6a01bdcd4b8513daa81b1ab99d3a50385b26931 AS base
 ENV DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
-    apt update 
-    apt full-upgrade 
-    apt install -y appstream build-essential cimg-dev cmake curl desktop-file-utils file fuse3 git libass-dev \
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        appstream build-essential ca-certificates cimg-dev cmake curl desktop-file-utils file fuse3 git libass-dev \
         libavcodec-dev libboost-filesystem-dev libcurl4-openssl-dev libfribidi-dev \
         libfuse2 libfuse3-3 libfuse3-dev libfuse-dev libgcrypt-dev libgles1 libgles2 libgles-dev \
         libglib2.0-dev libglvnd-core-dev libglvnd-dev libgpgme-dev libjpeg-dev libpng-dev libpulse-dev \
@@ -51,7 +51,7 @@ RUN <<EOF
     DESTDIR=/staging cmake --install _build
 
     cd /git/linuxdeploy-plugin-appimage
-    git reset --hard 96502d15 # Release 1-alpha-20250213-1
+    git reset --hard a96502d1 # Release 1-alpha-20250213-1
     git submodule update --init --recursive --depth 1
     cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
     cmake --build _build -j$(nproc)
