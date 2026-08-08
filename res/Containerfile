@@ -15,9 +15,13 @@ EOF
 FROM base AS appimagetool
 RUN <<EOF
     mkdir /git /staging
-    cd /git
-    git clone https://github.com/AppImage/appimagetool.git
+
+    git clone \
+        https://github.com/AppImage/appimagetool.git \
+        /git/appimagetool
+
     cd /git/appimagetool
+    git reset --hard 8c8c91f7 # Release 1.9.1
     cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
     cmake --build _build -j$(nproc)
     DESTDIR=/staging cmake --install _build
@@ -26,25 +30,36 @@ EOF
 FROM base AS linuxdeploy-and-plug
 RUN <<EOF
     mkdir /git /staging
-    cd /git
-    git clone https://github.com/linuxdeploy/linuxdeploy.git
-    git clone https://github.com/linuxdeploy/linuxdeploy-plugin-appimage.git
-    git clone https://github.com/linuxdeploy/linuxdeploy-plugin-qt.git
+
+    git clone \
+        https://github.com/linuxdeploy/linuxdeploy.git \
+        /git/linuxdeploy
+
+    git clone \
+        https://github.com/linuxdeploy/linuxdeploy-plugin-appimage.git \
+        /git/linuxdeploy-plugin-appimage \
+
+    git clone \
+        https://github.com/linuxdeploy/linuxdeploy-plugin-qt.git \
+        /git/linuxdeploy-plugin-qt
 
     cd /git/linuxdeploy
-    git submodule update --init --recursive
+    git reset --hard cc7b8647 # Release 1-alpha-20251107-1
+    git submodule update --init --recursive --depth 1
     cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
     cmake --build _build -j$(nproc)
     DESTDIR=/staging cmake --install _build
 
     cd /git/linuxdeploy-plugin-appimage
-    git submodule update --init --recursive
+    git reset --hard 96502d15 # Release 1-alpha-20250213-1
+    git submodule update --init --recursive --depth 1
     cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
     cmake --build _build -j$(nproc)
     DESTDIR=/staging cmake --install _build
 
     cd /git/linuxdeploy-plugin-qt
-    git submodule update --init --recursive
+    git reset --hard ce5291e2 # Release 1-alpha-20250213-1
+    git submodule update --init --recursive --depth 1
     cmake -B _build -DCMAKE_INSTALL_PREFIX=/usr .
     cmake --build _build -j$(nproc)
     DESTDIR=/staging cmake --install _build
