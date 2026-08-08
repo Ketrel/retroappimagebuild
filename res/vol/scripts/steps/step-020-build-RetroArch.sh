@@ -12,6 +12,7 @@ if [ -n "${COMMIT}" ]; then
 elif [ "${COMMIT}" = "ASIS" ]; then
     #Do nothing and leave the git repo exactly AS IS, and continue to the build
     #This exists for people who wish to modify the repo into a specific state prior to building
+    true #just have to do something
 else
     git checkout master && git reset --hard HEAD
 fi
